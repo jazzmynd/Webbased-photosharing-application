@@ -15,6 +15,7 @@ from flaskext.mysql import MySQL
 import flask_login
 import datetime
 import time
+from datetime import date
 
 #for image uploading
 import os, base64
@@ -25,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -313,7 +314,7 @@ def getAllUsersTagDescription(uid):
 #ADD COMMENT TO PHOTO
 def addCommentToPhoto(pid, uid, comm):
 	cursor = conn.cursor()
-	comDate = "2020-10-10"
+	comDate = date.today()
 	#if (uid != 0):
 	sql = "INSERT INTO Comments (commentText, commentDate, commentOwnedBy, commentedUnder) VALUES ('{0}', '{1}', '{2}', '{3}')".format(comm, comDate, uid, pid)
 	#else:
@@ -323,6 +324,34 @@ def addCommentToPhoto(pid, uid, comm):
 	cursor.execute(sql)
 	conn.commit()
 
+def addNewTag(tag):
+	cursor,conn.connect()
+	sql="INSERT INTO Tags (tagDescription) VALUE ('{0}')".format((tag))
+	cursor.execute(sql)
+	conn.commit()
+
+
+def addTagToPhoto(pid, tag):
+	cursor = conn.cursor()
+	# if (uid != 0):
+	sql = "INSERT INTO taggedWith (tagDescription, photoID) VALUES ('{0}', '{1}')".format(
+		tag,pid)
+	# else:
+	# sql = "INSERT INTO Comments (commentText, commentDate, commentedUnder) VALUES ('{0}', '{1}', '{2}')".format(comm, comDate, pid)
+
+	# print(sql)
+	cursor.execute(sql)
+	conn.commit()
+
+def IfTagUnique(tagdiscription):
+		# use this to check if a email has already been registered
+		cursor = conn.cursor()
+		if cursor.execute("SELECT tagDescription  FROM Tags WHERE tagDescription = '{0}'".format(tagdiscription)):
+			# this means there are greater than zero entries with that email
+			return False
+		else:
+			return True
+
 #GET ALL PHOTO'S COMMENTS
 def getComments(photoID):
 	cursor = conn.cursor()
@@ -330,6 +359,14 @@ def getComments(photoID):
 	print(sql)
 	cursor.execute(sql)
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def gettags(pid):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM taggedWith WHERE photoID = {0}".format(pid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall()
+
 
 
 @app.route('/profile')
@@ -399,7 +436,7 @@ def createAlbum():
         albumName = request.form.get('albumName')
         uid = getUserIdFromEmail(flask_login.current_user.id)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Albums (albumName, albumOwnedBy) VALUES ('{0}', '{1}')".format(albumName, uid))
+        cursor.execute("INSERT INTO Albums (albumName, albumOwnedBy, albumDate) VALUES ('{0}', '{1}','{2}')".format(albumName, uid,date.today))
         conn.commit()
         return render_template('AlbumCreated.html', name=flask_login.current_user.id)
 	#The method is GET so we return a  HTML form to upload the a photo.
@@ -556,23 +593,27 @@ def photoSearch():
 		else:
 			return render_template('photoSearch.html', message='Photo Search Dashboard', photos = [], base64=base64)
 
-@app.route('/tags', methods=['GET'])
-@flask_login.login_required
-def tags():
-	if request.method == 'GET':
-		uid = getUserIdFromEmail(flask_login.current_user.id)
-		
-		t = getAllTagDescriptions()
-		res = []
-		for i in t:
-			res.append(i[0])
 
-		myT = getAllUsersTagDescription(uid)
-		myRes = []
-		for i in myT:
-			myRes.append(i[0])
+#change new tag html
+# @app.route('/tags', methods=['GET'])
 
-		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+#
+# @flask_login.login_required
+# def tags():
+# 	if request.method == 'GET':
+# 		uid = getUserIdFromEmail(flask_login.current_user.id)
+#
+# 		t = getAllTagDescriptions()
+# 		res = []
+# 		for i in t:
+# 			res.append(i[0])
+#
+# 		myT = getAllUsersTagDescription(uid)
+# 		myRes = []
+# 		for i in myT:
+# 			myRes.append(i[0])
+#
+# 		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
 
 @app.route('/comments', methods=['GET','POST'])
 #@flask_login.login_required
@@ -593,6 +634,36 @@ def comments():
 		photoID = request.args.get('photoID')
 		print(photoID)
 		return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(photoID), comments = getComments(photoID), base64=base64)
+
+
+@app.route('/tag', methods=['GET', 'POST'])
+# @flask_login.login_required
+def tags():
+	if request.method == 'POST':
+
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		# print(UID, uid)
+		tag = request.form.get('tag')
+		pid = request.form.get('photoID')
+		# print(pid)
+		if IfTagUnique(tag):
+			addNewTag(tag)
+		addTagToPhoto(pid,tag)
+		# return flask.redirect(flask.url_for('hello'))
+		return render_template('tag.html', message='tag Dashboard', photo=getPhotoByID(pid),
+							   tags=gettags(pid), base64=base64)
+
+	else:
+		print("FLASK USER", flask_login)
+		photoID = request.args.get('photoID')
+		print(photoID)
+		return render_template('tag.html', message='tag Dashboard', photo=getPhotoByID(photoID),
+							   tags=gettags(pid), base64=base64)
+
+
+#here is friend recommendation
+
+
 
 	
 #default page
