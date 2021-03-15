@@ -1,9 +1,9 @@
+ <h4>Here is our friend list which is ordered the most popular rank:</h4><br>
 {% if friends %}
     <ul>
     {% for friend in friends %}
 
-        <li>{{friend[2]}}<br>
-        <a href='/addFriend?userID={{friend[0]}}'>Friend this User</a><br>
+        <li>{{friend}}<br>
       </li>
     {% endfor %}
     </ul>

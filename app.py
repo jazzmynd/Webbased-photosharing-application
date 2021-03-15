@@ -668,6 +668,35 @@ def tags():
 
 #here is friend recommendation
 
+def friednlist(uid,iter=2):
+	list={}
+	a=getUserFriends(uid)
+	for i in range(iter):
+		for j in a:
+			if j in list:
+				list[j]+=1
+			else:
+				list[j]=1
+	res=[]
+	for i in range(len(list)):
+		max(list,key=list.get)
+		res.append(key)
+		list.pop(key)
+	return res
+
+# def findpopulartag():
+# 	cursor=conn.cursor()
+# 	cursor.execute("SELECT (photoID, tagDescription)  FROM taggedWith ")
+
+
+
+
+@app.route("/friendRecommendation", methods=['GET'])
+@flask_login.login_required
+def friendrecommend():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	list=friednlist(uid)
+	return render_template("friendRecommendation.html",friends=list)
 
 
 	
@@ -680,4 +709,6 @@ def hello():
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
 	#$ python app.py
-	app.run(port=5000, debug=True)
+	# app.run(port=5000, debug=True)
+	a=friednlist(5)
+	print(a)
