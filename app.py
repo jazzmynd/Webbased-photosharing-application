@@ -416,6 +416,11 @@ def viewUsersTags():
 		tagDescription = request.args.get('tag')
 		return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag', photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription),base64=base64)
 
+@app.route('/AmazingTags', methods=['GET'])
+@flask_login.login_required
+def tagoption():
+	return render_template("AmazingTags.html")
+
 #GETTING MOST POPULAR TAG
 @app.route('/viewPopularTags', methods=['GET'])
 @flask_login.login_required
