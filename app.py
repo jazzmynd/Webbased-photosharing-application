@@ -582,6 +582,7 @@ def viewAlbums():
     if request.method == 'GET':
         return render_template('AllAlbum.html', albums=getAlbums(), base64=base64)
 
+
 @app.route('/deletedisplay', methods=['GET'])
 def deletedisplaay():
     if request.method == 'GET':
@@ -734,25 +735,23 @@ def photoSearch():
         return render_template('photoSearch.html', message='Photo Search Dashboard', photos=[], base64=base64)
 
 
-# change new tag html
-# @app.route('/tags', methods=['GET'])
+ #change new tag html
+ #@app.route('/tags', methods=['GET'])
+ #@flask_login.login_required
+ #def tags():
+ 	#if request.method == 'GET':
+ 		#uid = getUserIdFromEmail(flask_login.current_user.id)
+ 		#t = getAllTagDescriptions()
+ 		#res = []
+ 		#for i in t:
+ 		#	res.append(i[0])
 
-# @flask_login.login_required
-# def tags():
-# 	if request.method == 'GET':
-# 		uid = getUserIdFromEmail(flask_login.current_user.id)
-#
-# 		t = getAllTagDescriptions()
-# 		res = []
-# 		for i in t:
-# 			res.append(i[0])
-#
-# 		myT = getAllUsersTagDescription(uid)
-# 		myRes = []
-# 		for i in myT:
-# 			myRes.append(i[0])
-#
-# 		return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+ 		#myT = getAllUsersTagDescription(uid)
+ 		#myRes = []
+ 		#for i in myT:
+			#myRes.append(i[0])
+
+		#return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
 
 @app.route('/comments', methods=['GET', 'POST'])
 # @flask_login.login_required

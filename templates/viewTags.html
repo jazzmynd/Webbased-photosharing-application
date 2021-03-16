@@ -1,0 +1,17 @@
+<head>
+    <title>Here are all the albums</title>
+
+</head>
+{% if albums %}
+<ul>
+    {% for album in albums %}
+
+    <li>{{album[0]}}<br>
+        <a href='/viewAlbumPictures?albumID={{album[1]}}'>VIEW</a>
+
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<li><a href='/'>Home</a></li>
