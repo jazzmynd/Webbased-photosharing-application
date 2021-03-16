@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -480,7 +480,7 @@ def upload_file():
         cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, belongs) VALUES (%s, %s, %s, %s )''',
                        (photo_data, uid, caption, album))
         conn.commit()
-        return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!',
+        return render_template('photopage.html', name=flask_login.current_user.id, message='Photo uploaded!',
                                photos=getUsersPhotos(uid), base64=base64)
     # The method is GET so we return a  HTML form to upload the a photo.
     else:
@@ -513,6 +513,10 @@ def viewUsersTags():
 def tagoption():
     return render_template("AmazingTags.html")
 
+@app.route('/photopage', methods=['GET'])
+@flask_login.login_required
+def photopage():
+    return render_template("photopage.html")
 
 # GETTING MOST POPULAR TAG
 @app.route('/viewPopularTags', methods=['GET'])
@@ -578,6 +582,11 @@ def viewAlbums():
     if request.method == 'GET':
         return render_template('AllAlbum.html', albums=getAlbums(), base64=base64)
 
+@app.route('/deletedisplay', methods=['GET'])
+def deletedisplaay():
+    if request.method == 'GET':
+        return render_template('deletedisplay.html')
+
 
 @app.route('/viewYourAlbums', methods=['GET'])
 @flask_login.login_required
@@ -598,7 +607,7 @@ def deletePhoto():
         cursor.execute("DELETE FROM taggedWith WHERE taggedWith.photoID = {0}".format(photoID))
         cursor.execute("DELETE FROM Pictures WHERE Pictures.picture_id = {0}".format(photoID))
         conn.commit()
-        return render_template('hello.html', name=flask_login.current_user.id, message='Photo Deleted')
+        return render_template('deletedisplay.html', name=flask_login.current_user.id, message='Photo Deleted')
     # The method is GET so we return a  HTML form to upload the a photo.
     else:
         return render_template('hello.html')
