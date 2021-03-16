@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -600,9 +600,8 @@ def photoSearch():
 
 
 #change new tag html
-# @app.route('/tags', methods=['GET'])
+ #@app.route('/tags', methods=['GET'])
 
-#
 # @flask_login.login_required
 # def tags():
 # 	if request.method == 'GET':
