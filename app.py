@@ -659,12 +659,12 @@ def tags():
 							   tags=gettags(pid), base64=base64)
 
 	else:
-		pid = request.form.get('photoID')
+		# pid = request.form.get('photoID')
 		print("FLASK USER", flask_login)
 		photoID = request.args.get('photoID')
 		print(photoID)
 		return render_template('tag.html', message='tag Dashboard', photo=getPhotoByID(photoID),
-							   tags=gettags(pid), base64=base64)
+							   tags=gettags(photoID), base64=base64)
 
 
 #here is friend recommendation
