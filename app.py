@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -83,6 +83,7 @@ A new page looks like this:
 def new_page_function():
 	return new_page_html
 '''
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -177,7 +178,15 @@ def getUsersPhotos(uid):
 
 def getTagPhoto(tagname):
     cursor = mysql.connect().cursor()
-    cursor.execute("SELECT photoID FROM taggedWith WHERE tagDescription = '{0}'".format(tagname))
+    cursor.execute("SELECT commentOwnedBy FROM Comments WHERE commentText = '{0}'".format(tagname))
+    list=[]
+    for i in cursor.fetchall():
+        list.append(i[0])
+    return list
+
+def getcommentPhoto(comment):
+    cursor = mysql.connect().cursor()
+    cursor.execute("SELECT photoID FROM taggedWith WHERE tagDescription = '{0}'".format(comment))
     list=[]
     for i in cursor.fetchall():
         list.append(i[0])
@@ -733,6 +742,21 @@ def photoSearch():
                                base64=base64)
     else:
         return render_template('photoSearch.html', message='Photo Search Dashboard', photos=[], base64=base64)
+
+@app.route('/searchcomment', methods=['GET', 'POST'])
+def commentsearch():
+    if request.method == 'GET':
+        return render_template("commentsearch.html")
+    else:
+        commentname = request.form.get('commentname')
+        print(commentname)
+        # cursor = conn.cursor()
+        # cursor.execute("SELECT photoID from taggedWith WHERE tagDescription='{0}' ".format(tagname))
+        # tagnamelist = cursor.fetchall()
+        photoidlist=getcommentPhoto(commentname)
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        return render_template("PhotoDisplay.html"
+             ,name=flask_login.current_user.id, message="Here's your tags photos",photos=getPicturesfromid(photoidlist), base64=base64)
 
 
  #change new tag html
