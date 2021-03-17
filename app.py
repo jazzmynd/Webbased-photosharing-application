@@ -761,8 +761,14 @@ def commentsearch():
 @app.route('/activity', methods=['GET'])
 def activity():
     if request.method == 'GET':
-        return render_template("useractivity.html", )
+        userlist=findten()
+        return render_template("useractivity.html",users=userlist)
 
+def findten():
+    cursor = conn.cursor()
+    cursor.execute("select fName,lName from Users, (select count(picture_id) from Pictures where user_id=user_id from Users) +"
+                   " (select count(commentID) from Comments where commentOwnedBy=Users.user_id) as sumCount where Users.user_id != 1 order by sumCount DESC limit 10")
+    return cursor.fetchall()
  #change new tag html
  #@app.route('/tags', methods=['GET'])
  #@flask_login.login_required
