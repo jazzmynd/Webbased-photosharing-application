@@ -761,7 +761,7 @@ def commentsearch():
 @app.route('/activity', methods=['GET'])
 def activity():
     if request.method == 'GET':
-        return render_template("useractivity.html")
+        return render_template("useractivity.html", )
 
  #change new tag html
  #@app.route('/tags', methods=['GET'])
