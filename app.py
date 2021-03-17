@@ -766,10 +766,54 @@ def activity():
 
 def findten():
     cursor = conn.cursor()
-    cursor.execute("select fName,lName from Users, (select count(picture_id) from Pictures where user_id=user_id from Users) +"
-                   " (select count(commentID) from Comments where commentOwnedBy=Users.user_id) as sumCount where Users.user_id != 1 order by sumCount DESC limit 10")
+    cursor.execute(" select fName,lName from Users, ((select count(picture_id) from Pictures where user_id=Users.user_id ) "
+                   "+ (select count(commentID) from Comments where commentOwnedBy=Users.user_id)) as sumCount "
+                   "where Users.user_id != 1 order by sumCount DESC limit 10")
     return cursor.fetchall()
- #change new tag html
+
+
+# def findPopulartag():
+#     cursor = conn.cursor()
+#     query = '''SELECT photoId, top_photos.c, taggedWith.tagDescription from taggedWith, ''' \
+#             + '''(SELECT taggedWith.photoId, count(photoId) as c from taggedWith,''' \
+#             + ''' (SELECT tagDescription FROM taggedWith ORDER BY COUNT(tagDescription) ''' \
+#             + '''DESC GROUP BY(tagDescription) LIMIT 5) as top_tags''' \
+#             + '''WHERE taggedWith.tagDescription = top_tags.tagDescription''' \
+#             + '''ORDER BY COUNT(photoId) DESC GROUP BY(photoId)) as top_photos''' \
+#             + '''WHERE taggedWith.photoId = top_photos.photoId;'''
+#     result = cursor.execute(query).fetchall()
+#     ### assume not result = [photoIds=[...],counts=[...],tagDescriptions=[...]]
+#     uniqueids = []
+#     uniquecounts = []
+#     mapping = {}
+#     i = 0
+#     while i < len(photoIds):
+#         current_photoId = photoIds[i]
+#         uniqueids.append(current_photoId)
+#         current_count = counts[i]
+#         uniquecounts.append(current_count)
+#         j = i
+#         while photoIds[i] == current_photoId:
+#             j += 1
+#         mapping[current_photoId] = j - i
+#         i = j
+#
+#     resultids = []
+#     i = 0
+#     while i < len(uniquecounts):
+#         current_count = uniquecounts[i]
+#         j = i
+#         while uniquecounts[i] == current_count:
+#             j += 1
+#         current_group = uniqueids[i:j]
+#         resultids.append(current_group.sort(key=lambda id: mapping[id]))
+#         i = j
+#     ### now the resultids = [group1 = [...], group2=[...]...]
+#     ### unwrap resultids
+#     return resultids
+#
+#
+    #change new tag html
  #@app.route('/tags', methods=['GET'])
  #@flask_login.login_required
  #def tags():
