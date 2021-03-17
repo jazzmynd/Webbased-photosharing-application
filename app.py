@@ -186,7 +186,7 @@ def getTagPhoto(tagname):
 
 def getcommentPhoto(comment):
     cursor = mysql.connect().cursor()
-    cursor.execute("SELECT photoID FROM taggedWith WHERE tagDescription = '{0}'".format(comment))
+    cursor.execute("SELECT commentOwnedBy FROM Comments WHERE commentText = '{0}'".format(comment))
     list=[]
     for i in cursor.fetchall():
         list.append(i[0])
@@ -756,8 +756,12 @@ def commentsearch():
         photoidlist=getcommentPhoto(commentname)
         uid = getUserIdFromEmail(flask_login.current_user.id)
         return render_template("PhotoDisplay.html"
-             ,name=flask_login.current_user.id, message="Here's your tags photos",photos=getPicturesfromid(photoidlist), base64=base64)
+             ,name=flask_login.current_user.id, message="Here's your comment-found photos",photos=getPicturesfromid(photoidlist), base64=base64)
 
+@app.route('/activity', methods=['GET'])
+def activity():
+    if request.method == 'GET':
+        return render_template("useractivity.html")
 
  #change new tag html
  #@app.route('/tags', methods=['GET'])
