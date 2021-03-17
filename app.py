@@ -863,6 +863,21 @@ def selftag():
         uid = getUserIdFromEmail(flask_login.current_user.id)
         return render_template("selftag.html", uid=uid)
 
+
+#here is you may also like
+# @app.route('/Youmayalsolike', methods=[ 'POST'])
+# def youmaylike():
+#     if request.method == "POST":
+#         taglist=findPopulartag()
+#         cursor = conn.cursor()
+#         cursor.execute()
+#
+#
+# def findPopulartag():
+#     cursor = conn.cursor()
+#     cursor.execute()
+#     return
+
 # here is friend recommendation
 
 def friednlist(uid, iter=2):
