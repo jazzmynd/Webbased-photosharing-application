@@ -811,14 +811,15 @@ def commentsearch():
         return render_template("PhotoDisplay.html"
              ,name=flask_login.current_user.id, message="Here's your comment-found photos",photos=getPicturesfromid(photoidlist), base64=base64)
 
-@app.route('/activity', methods=['GET'])
+@app.route('/useractivity', methods=['GET'])
 @flask_login.login_required
 def userActivity():
 	if request.method == 'GET':
                 cursor = conn.cursor()
                 cursor.execute("Select Users.email, COUNT(picture_id)+ COUNT(Comments.commentID) From Users left Outer Join Pictures on Users.user_id = Pictures.user_id left outer join Comments on Users.user_id = Comments.commentOwnedBy Group By Users.user_id having COUNT(picture_id)+ COUNT(Comments.commentID)>0 Order by COUNT(picture_id)+ COUNT(Comments.commentID) DESC Limit 10")
                 recs = cursor.fetchall()
-                return render_template("useractivity.html",message='Here are the top users with their contribution scores', activities=recs, base64=base64)
+                return render_template('useractivity.html', message='Here are the top users with their contribution scores', activities=recs, base64=base64)
+
 
 def findten():
     cursor = conn.cursor()
