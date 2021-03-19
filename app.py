@@ -561,7 +561,7 @@ def viewAllTags():
         print(tagsWithoutExtraStuff)
         #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
         return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
-        
+
 @app.route('/viewUsersTags', methods=['GET'])
 @flask_login.login_required
 def viewUsersTags():
@@ -826,6 +826,27 @@ def findten():
                    "+ (select count(commentID) from Comments where commentOwnedBy=Users.user_id)) as sumCount "
                    "where Users.user_id != 1 order by sumCount DESC limit 10")
     return cursor.fetchall()
+
+@app.route('/photoRecs', methods=['GET'])
+@flask_login.login_required
+def photoRecs():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		tags = getTopFiveUserTags(uid)
+		res = []
+		for i in tags:
+			res.append(i[1])
+
+		if res != []:
+			pids = getRecommendedPhotoIDs(res)
+			res2 = []
+			for i in pids:
+				res2.append(i[0])
+			
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = getAllPhotosByPhotoIDS(res2),  base64=base64)	
+		else:
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = [],  base64=base64)	
+
 
 
 # def findPopulartag():
