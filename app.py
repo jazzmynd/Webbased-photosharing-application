@@ -555,9 +555,13 @@ def upload_file():
 def viewAllTags():
     if request.method == 'GET':
         tag = getAllTags()
-        return render_template('hello.html', name=flask_login.current_user.id, message='All Tags'+ tag[0][0],tags =tag)
-
-
+        tagsWithoutExtraStuff = []
+        for t in range(len(tag)):
+                tagsWithoutExtraStuff += [tag[t][0]]
+        print(tagsWithoutExtraStuff)
+        #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
+        return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
+        
 @app.route('/viewUsersTags', methods=['GET'])
 @flask_login.login_required
 def viewUsersTags():
