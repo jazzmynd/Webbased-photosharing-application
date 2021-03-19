@@ -7,6 +7,16 @@
 <h1>Hello {{ name }}!</h1>
 {% endif %}
 
+{% if tags %}
+    <ul>
+    {% for tag in tags %}
+      <li>
+        <a href='/viewAllTags?tag={{tag}}'>{{tag}}</a><br>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
 {% if photos %}
 <h2>Here are your photos</h2>
 <ul>
@@ -55,5 +65,7 @@
     <li><a href='/searchcomment'>search a photo by comment</a> </li>
     <li><a href='/AmazingTags'>Amazing Tags!</a> </li>
   <li><a href='/reccomendFriends'>Friend Reccomendations!</a> </li>
-    <li><a href='/activity'> find the most active users!</a> </li>
+    <li><a href='/useractivity'> find the most active users!</a> </li>
+    <li><a href='/photoRecs'> You may also like</a> </li>
+    
 </ul>

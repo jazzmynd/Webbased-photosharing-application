@@ -1,12 +1,10 @@
-{% if photos %}
-<h2>Here are your photos</h2>
+
+{% if activities %}
 <ul>
-  {% for user in users %}
-    <li>{{user}}<br>
-
-
+{% for activity in activities %}
+    <li>{{activity[0]}} {{activity[1]}}<br>
   </li>
-  {% endfor %}
+{% endfor %}
 </ul>
 {% endif %}
 

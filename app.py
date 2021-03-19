@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -408,6 +408,64 @@ def addCommentToPhoto(pid, uid, comm):
     cursor.execute(sql)
     conn.commit()
 
+def addAnonCommentToPhoto(pid, comm):
+	cursor = conn.cursor()
+	comDate = date.today()
+	sql = "INSERT INTO Comments (commentText, commentDate, commentedUnder) VALUES ('{0}', '{1}', '{2}')".format(comm, comDate, pid)
+
+	print(sql)
+	cursor.execute(sql)
+	conn.commit()
+
+def getComments(photoID):
+	cursor = conn.cursor()
+	#sql = "SELECT * FROM photoshare.Comments WHERE commentedUnder = {0}".format(photoID)
+	sql = "SELECT * FROM (SELECT * FROM Comments WHERE commentedUnder = {0}) as A INNER JOIN Users B ON B.user_id = A.commentOwnedBy".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getAnonComment(photoID):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM Comments WHERE commentedUnder = {0} AND commentOwnedBy IS NULL".format(photoID)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getRecommendedPhotoIDs(tags):
+	if tags == []:
+		return []
+	cursor = conn.cursor()
+	acc = ""
+	for t in tags:
+		acc += "'" + str(t) + "',"
+	acc = acc[:-1]
+	sql = "SELECT * From (SELECT photoID, Count(photoID) AS C1 From taggedWith as B Group by photoID) AS B INNER JOIN (SELECT A.photoID, COUNT(*) as C2 FROM taggedWith A WHERE A.tagDescription IN ({0}) GROUP BY A.photoID ORDER BY COUNT(A.photoID) DESC) AS Q ON B.photoID = Q.photoID GROUP BY B.photoID ORDER BY C2 DESC, C1 ASC".format(acc)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getTopFiveUserTags(uid):
+	cursor = conn.cursor()
+	sql = "SELECT user_id, tagDescription, COUNT(*) FROM (taggedWith inner join Pictures on photoID = picture_id) WHERE user_id = {0} GROUP BY tagDescription ORDER BY COUNT(*) DESC LIMIT 5".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getPhotoOwner(pid):
+	cursor = conn.cursor()
+	sql = "SELECT user_id FROM Pictures WHERE picture_id = {0}".format(pid)
+	cursor.execute(sql)
+	return cursor.fetchone()[0]
+
+#GET USER INFO
+def userInfo(uid):
+	cursor = conn.cursor()
+	sql = "SELECT * FROM Users WHERE user_id = {0}".format(uid)
+	print(sql)
+	cursor.execute(sql)
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 
 def addNewTag(tag):
     cursor, conn.connect()
@@ -440,12 +498,7 @@ def IfTagUnique(tagdiscription):
 
 
 # GET ALL PHOTO'S COMMENTS
-def getComments(photoID):
-    cursor = conn.cursor()
-    sql = "SELECT * FROM Comments WHERE commentedUnder = {0}".format(photoID)
-    print(sql)
-    cursor.execute(sql)
-    return cursor.fetchall()  # NOTE list of tuples, [(imgdata, pid), ...]
+
 
 
 def gettags(pid):
@@ -499,23 +552,35 @@ def upload_file():
 # end photo uploading code
 
 @app.route('/viewAllTags', methods=['GET'])
-@flask_login.login_required
 def viewAllTags():
     if request.method == 'GET':
-        tagDescription = request.args.get('tag')
-        print("tags are:", tagDescription)
-        return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag',
-                               photos=getAllPhotosByTag(tagDescription), base64=base64)
-
+        tag = getAllTags()
+        tagsWithoutExtraStuff = []
+        for t in range(len(tag)):
+                tagsWithoutExtraStuff += [tag[t][0]]
+        print(tagsWithoutExtraStuff)
+        #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
+        return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
 
 @app.route('/viewUsersTags', methods=['GET'])
 @flask_login.login_required
 def viewUsersTags():
     if request.method == 'GET':
         tagDescription = request.args.get('tag')
-        return render_template('hello.html', name=flask_login.current_user.id, message='All Photos By Tag',
+        return render_template('hello.html', name=flask_login.current_user.id, message='Your Photos By Tag',
                                photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription), base64=base64)
 
+@app.route('/viewPopularTags', methods=['GET'])
+def viewPopularTag():
+    if request.method == 'GET':
+        tag = getAllTags()
+        tagsWithoutExtraStuff = []
+        for t in range(len(tag)):
+                tagsWithoutExtraStuff += [tag[t][0]]
+        print(tagsWithoutExtraStuff)
+        #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
+        return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
+		
 
 @app.route('/AmazingTags', methods=['GET'])
 @flask_login.login_required
@@ -528,19 +593,7 @@ def photopage():
     return render_template("photopage.html")
 
 # GETTING MOST POPULAR TAG
-@app.route('/viewPopularTags', methods=['GET'])
-@flask_login.login_required
-def viewPopularTag():
-    if request.method == 'GET':
-        tag = getAllTags()
-        tagsWithoutExtraStuff = []
-        for t in range(len(tag)):
-            tagsWithoutExtraStuff += [tag[t][0]]
-        print(tagsWithoutExtraStuff)
-		# return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
-        return render_template('popularTags.html', name=flask_login.current_user.id,
-                               message="Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",
-                               tags=tagsWithoutExtraStuff, base64=base64)
+
 
 
 @app.route('/createAlbum', methods=['POST', 'GET'])
@@ -758,11 +811,15 @@ def commentsearch():
         return render_template("PhotoDisplay.html"
              ,name=flask_login.current_user.id, message="Here's your comment-found photos",photos=getPicturesfromid(photoidlist), base64=base64)
 
-@app.route('/activity', methods=['GET'])
-def activity():
-    if request.method == 'GET':
-        userlist=findten()
-        return render_template("useractivity.html",users=userlist)
+@app.route('/useractivity', methods=['GET'])
+@flask_login.login_required
+def userActivity():
+	if request.method == 'GET':
+                cursor = conn.cursor()
+                cursor.execute("Select Users.email, COUNT(picture_id)+ COUNT(Comments.commentID) From Users left Outer Join Pictures on Users.user_id = Pictures.user_id left outer join Comments on Users.user_id = Comments.commentOwnedBy Group By Users.user_id having COUNT(picture_id)+ COUNT(Comments.commentID)>0 Order by COUNT(picture_id)+ COUNT(Comments.commentID) DESC Limit 10")
+                recs = cursor.fetchall()
+                return render_template('useractivity.html', message='Here are the top users with their contribution scores', activities=recs, base64=base64)
+
 
 def findten():
     cursor = conn.cursor()
@@ -770,6 +827,27 @@ def findten():
                    "+ (select count(commentID) from Comments where commentOwnedBy=Users.user_id)) as sumCount "
                    "where Users.user_id != 1 order by sumCount DESC limit 10")
     return cursor.fetchall()
+
+@app.route('/photoRecs', methods=['GET'])
+@flask_login.login_required
+def photoRecs():
+	if request.method == 'GET':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		tags = getTopFiveUserTags(uid)
+		res = []
+		for i in tags:
+			res.append(i[1])
+
+		if res != []:
+			pids = getRecommendedPhotoIDs(res)
+			res2 = []
+			for i in pids:
+				res2.append(i[0])
+			
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = getAllPhotosByPhotoIDS(res2),  base64=base64)	
+		else:
+			return render_template('photoRecs.html', message='You May Also Like Dashboard', photos = [],  base64=base64)	
+
 
 
 # def findPopulartag():
@@ -968,6 +1046,8 @@ def friendrecommend():
 @app.route("/", methods=['GET'])
 def hello():
     return render_template('hello.html', message='Welecome to Photoshare')
+
+#tag
 
 
 if __name__ == "__main__":
