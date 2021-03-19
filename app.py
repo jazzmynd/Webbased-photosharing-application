@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -560,15 +560,31 @@ def viewAllTags():
                 tagsWithoutExtraStuff += [tag[t][0]]
         print(tagsWithoutExtraStuff)
         #return render_template('hello.html', name=flask_login.current_user.id, message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",base64=base64)
-        return render_template('popularTags.html', message = "Most popular tag is: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
+        return render_template('popularTags.html', message = "All tags are: " + tag[0][0] + ". Here are the photos with the tag",tags = tagsWithoutExtraStuff, base64=base64)
 
 @app.route('/viewUsersTags', methods=['GET'])
 @flask_login.login_required
 def viewUsersTags():
     if request.method == 'GET':
-        tagDescription = request.args.get('tag')
+        uid=flask_login.current_user.id
+        taglist=gettagwithuid(uid)
+        #using the taglist which is a list containging all the tag about the current user to render the html
+        ##here need change!!!
+        return render_template('popularTags.html',
+                               message="your tags are: " + tagli[0][0] + ". Here are the photos with the tag",
+                               tags=tagsWithoutExtraStuff, base64=base64)
+
         return render_template('hello.html', name=flask_login.current_user.id, message='Your Photos By Tag',
                                photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription), base64=base64)
+def gettagwithuid(uid):
+    pidlist=getPicturesfromuid(uid)
+    conn.cursor()
+    cursor.execute("SELECT tagDescription FROM taggedWith WHERE photoID IN '{0}'".format(pidlist))
+    return cursor.fetchall()
+def getPicturesfromuid(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT Pictures.picture_id FROM Pictures WHERE belongs = '{0}'".format(uid))
+    return cursor.fetchall()
 
 @app.route('/viewPopularTags', methods=['GET'])
 def viewPopularTag():
