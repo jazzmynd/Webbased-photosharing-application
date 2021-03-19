@@ -577,12 +577,23 @@ def viewUsersTags():
 
 def gettagwithuid(uid):
     pidlist=getPicturesfromuid(uid)
+
     conn.cursor()
-    cursor.execute("SELECT tagDescription FROM taggedWith WHERE photoID IN '{0}'".format(pidlist))
+    print(pidlist)
+    # pidlist=tuple(pidlist)
+    tagsWithoutExtraStuff = []
+    for t in range(len(pidlist)):
+        tagsWithoutExtraStuff += [pidlist[t][0]]
+    print(tagsWithoutExtraStuff)
+    tagsWithoutExtraStuff=tuple(tagsWithoutExtraStuff)
+    cursor.execute("SELECT tagDescription FROM taggedWith WHERE photoID IN '{0}'".format(tagsWithoutExtraStuff))
     return cursor.fetchall()
+
+
 def getPicturesfromuid(uid):
+    # uid=tuple(uid)
     cursor = conn.cursor()
-    cursor.execute("SELECT Pictures.picture_id FROM Pictures WHERE belongs = '{0}'".format(uid))
+    cursor.execute("SELECT picture_id FROM Pictures WHERE user_id = (SELECT user_id FROM Users WHERE email='{0}')".format(uid))
     return cursor.fetchall()
 
 @app.route('/viewPopularTags', methods=['GET'])
