@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'woaicth31445810'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Jasmine_31'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -934,28 +934,44 @@ def photoRecs():
 			#myRes.append(i[0])
 
 		#return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
-
-@app.route('/comments', methods=['GET', 'POST'])
-# @flask_login.login_required
+@app.route('/comments', methods=['GET','POST'])
 def comments():
-    if request.method == 'POST':
+	if (flask_login.current_user.is_anonymous != True):
+		if request.method == 'POST':
+				
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+			comm = request.form.get('comment')
+			pid = request.form.get('photoID')
+			print(pid)
+			addCommentToPhoto(pid, uid, comm)
+			#return flask.redirect(flask.url_for('hello'))
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), anonComments = getAnonComment(pid), base64=base64)
+		
+		else:
+			photoID = request.args.get('photoID')
+			print(photoID)
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+			user = getPhotoOwner(photoID)
+			if uid == user:
+				return render_template('comments.html', message='Comment Dashboard', allowed = False, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
 
-        uid = getUserIdFromEmail(flask_login.current_user.id)
-        # print(UID, uid)
-        comm = request.form.get('comment')
-        pid = request.form.get('photoID')
-        print(pid)
-        addCommentToPhoto(pid, uid, comm)
-        # return flask.redirect(flask.url_for('hello'))
-        return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(pid),
-                               comments=getComments(pid), base64=base64)
+			else:
+				return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
+	else:
+		if request.method == 'POST':
 
-    else:
-        print("FLASK USER", flask_login)
-        photoID = request.args.get('photoID')
-        print(photoID)
-        return render_template('comments.html', message='Comment Dashboard', photo=getPhotoByID(photoID),
-                               comments=getComments(photoID), base64=base64)
+			comm = request.form.get('comment')
+			pid = request.form.get('photoID')
+			print(pid)
+			addAnonCommentToPhoto(pid, comm)
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(pid), comments = getComments(pid), anonComments = getAnonComment(pid), base64=base64)
+		
+		else:
+
+			photoID = request.args.get('photoID')
+			print(photoID)			
+			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
+
 
 
 @app.route('/tag', methods=['GET', 'POST'])
