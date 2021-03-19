@@ -7,6 +7,16 @@
 <h1>Hello {{ name }}!</h1>
 {% endif %}
 
+{% if tags %}
+    <ul>
+    {% for tag in tags %}
+      <li>
+        <a href='/viewAllTags?tag={{tag}}'>{{tag}}</a><br>
+      </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
 {% if photos %}
 <h2>Here are your photos</h2>
 <ul>

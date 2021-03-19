@@ -58,6 +58,7 @@ REFERENCES Users (user_id),
 
 CREATE TABLE Tags(
 	tagDescription		CHAR(20),
+    name VARCHAR(100),
 	PRIMARY KEY (tagDescription)
 );
 
@@ -66,9 +67,9 @@ CREATE TABLE taggedWith(
 	tagDescription CHAR(20),
 	PRIMARY KEY (photoID, tagDescription), 
 	FOREIGN KEY (photoID)
-		REFERENCES Pictures(picture_id), 
+	REFERENCES Pictures(picture_id), 
 	FOREIGN KEY (tagDescription)
-		REFERENCES Tags(tagDescription) 
+	REFERENCES Tags(tagDescription)
 );
 
 CREATE TABLE Comments(
