@@ -17,6 +17,7 @@ import datetime
 import time
 from datetime import date
 
+
 # for image uploading
 import os, base64
 
@@ -934,6 +935,8 @@ def photoRecs():
 			#myRes.append(i[0])
 
 		#return render_template('tags.html', message='Tag Dashboard', allTags = res, myTags = myRes, base64=base64)
+
+
 @app.route('/comments', methods=['GET','POST'])
 def comments():
 	if (flask_login.current_user.is_anonymous != True):
@@ -971,7 +974,6 @@ def comments():
 			photoID = request.args.get('photoID')
 			print(photoID)			
 			return render_template('comments.html', message='Comment Dashboard', allowed = True, photo=getPhotoByID(photoID), comments = getComments(photoID), anonComments = getAnonComment(photoID), base64=base64)
-
 
 
 @app.route('/tag', methods=['GET', 'POST'])
