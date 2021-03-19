@@ -571,8 +571,8 @@ def viewUsersTags():
         #using the taglist which is a list containging all the tag about the current user to render the html
         ##here need change!!!
         return render_template('popularTags.html',
-                               message="your tags are: " + tagli[0][0] + ". Here are the photos with the tag",
-                               tags=tagsWithoutExtraStuff, base64=base64)
+                               message="your tags are: " + taglist + ". Here are the photos with the tag",
+                               tags=taglist, base64=base64)
 
         return render_template('hello.html', name=flask_login.current_user.id, message='Your Photos By Tag',
                                photos=getUsersPhotosByTag(flask_login.current_user.id, tagDescription), base64=base64)
